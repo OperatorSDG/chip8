@@ -69,5 +69,5 @@ void display_render(void) {
 void display_destroy(void) {
     if (renderer) SDL_DestroyRenderer(renderer);
     if (window) SDL_DestroyWindow(window);
-    SDL_Quit;
+    SDL_Quit();
 }
