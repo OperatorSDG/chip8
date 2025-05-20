@@ -9,6 +9,7 @@ uint8_t display[DISPLAY_HEIGHT][DISPLAY_WIDTH] = {0};
 
 bool display_init(void) {
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+        printf("SDL_Init Error: %s\n", SDL_GetError());
         return false;
     }
 
