@@ -6,7 +6,7 @@ CFLAGS = -Iinclude
 LDFLAGS = -lSDL2
 
 # Source files and output
-SRC = src/main.c src/display.c src/chip8.c
+SRC = src/main.c src/display.c src/cpu.c
 OUT_DIR = build
 OUT = $(OUT_DIR)/chip8
 

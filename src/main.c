@@ -1,4 +1,5 @@
 #include "../include/display.h"
+#include "../include/cpu.h"
 #include <stdio.h>
 #include <SDL2/SDL.h>
 
