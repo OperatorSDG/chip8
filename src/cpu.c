@@ -34,7 +34,7 @@ void cpu_init(void) {
     chip8.pc = PROGRAM_START_ADDRESS;
 
     // Load fontset into memory at 0x50
-    memcpy(FONTSET_START_ADDRESS, chip8_fontset, sizeof(chip8_fontset));
+    memcpy(&chip8.memory[FONTSET_START_ADDRESS], chip8_fontset, sizeof(chip8_fontset));
     display_clear();
 }
 

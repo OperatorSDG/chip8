@@ -3,53 +3,23 @@
 #include <stdio.h>
 #include <SDL2/SDL.h>
 
-int main() {
-    if (!display_init()) {
-        printf("Failed to Initialize Display!\n");
+int main(int argc, char* argv[]) {
+    if (argc != 2) {
+        fprintf(stderr, "Usage: %s <ROM file>\n", argv[0]);
         return 1;
     }
 
-    // 'S'
-    display[10][9] = 1;
-    display[10][10] = 1;
-    display[10][11] = 1;
-    display[11][9] = 1;
-    display[12][9] = 1;
-    display[12][10] = 1;
-    display[12][11] = 1;
-    display[13][11] = 1;
-    display[14][9] = 1;
-    display[14][10] = 1;
-    display[14][11] = 1;
+    cpu_init();
+    cpu_load_rom(argv[1]);
 
-    // 'D'
-    display[10][13] = 1;
-    display[10][14] = 1;
-    display[11][15] = 1;
-    display[11][13] = 1;
-    display[12][13] = 1;
-    display[12][15] = 1;
-    display[13][13] = 1;
-    display[14][13] = 1;
-    display[14][14] = 1;
-    display[13][15] = 1;
+    // Print first 10 Bytes of ROM
+    printf("Program Counter: 0x%03X\n", chip8.pc);
+    printf("First 10 bytes of ROM in memory at 0x200: \n");
+    for (int i = 0; i < 10; i++) {
+        int curr_mem_loc = 0x200 + i;
+        printf("0x%03X: 0x%02X\n",curr_mem_loc ,chip8.memory[curr_mem_loc]);
+    }
+    printf("\n");
 
-    // 'G'
-    display[10][17] = 1;
-    display[10][18] = 1;
-    display[10][19] = 1;
-    display[11][17] = 1;
-    display[12][17] = 1;
-    display[12][19] = 1;
-    display[13][17] = 1;
-    display[14][17] = 1;
-    display[14][18] = 1;
-    display[14][19] = 1;
-    display[13][19] = 1;
-
-    display_render();
-    SDL_Delay(10000);
-    
-    display_destroy();
     return 0;
 }
