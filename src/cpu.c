@@ -66,114 +66,147 @@ void cpu_load_rom(const char* path) {
 void cpu_cycle(void) {
     // Instruction Fetch
     uint16_t opcode = (chip8.memory[chip8.pc] << 8 | chip8.memory[chip8.pc + 1]);
-    chip8.pc += 2;
+
+    // Default increment; will be skipped if instruction sets PC manually
+    uint16_t next_pc = chip8.pc + 2;
 
     // Instruction Decode and Execute
     switch (opcode & 0xF000) {
-        case 0x0000:
+        case 0x0000: {
             switch (opcode) {
-                case 0x00E0: { // CLS - Clear Screen
-                    display_clear();
-                    break;
-                }
-                case 0x00EE: { // RET - Return drom subroutine
+                case 0x00E0: display_clear(); break;
+                case 0x00EE:
                     chip8.sp--;
-                    chip8.pc = chip8.stack[chip8.sp];
+                    next_pc = chip8.stack[chip8.sp];
                     break;
-                }
             }
             break;
-
-        case 0x1000: { // 1nnn - JP addr
-            chip8.pc = opcode & 0x0FFF;
-            break;
-        }
-        
-        case 0x2000: { // 2nnn - CALL addr
-            chip8.stack[chip8.sp] = chip8.pc;
-            chip8.sp++;
-            chip8.pc = opcode & 0x0FFF;
-            break;
         }
 
-        case 0x3000: { // 3xkk - SE Vx, kk
+        case 0x1000: next_pc = opcode & 0x0FFF; break;
+
+        case 0x2000:
+            chip8.stack[chip8.sp++] = chip8.pc + 2;
+            next_pc = opcode & 0x0FFF;
+            break;
+
+        case 0x3000: {
             uint8_t x = (opcode & 0x0F00) >> 8;
-            uint8_t byte = (opcode & 0x00FF);
-            if (chip8.V[x] == byte) {
-                chip8.pc += 2;
-            } 
+            if (chip8.V[x] == (opcode & 0x00FF)) next_pc += 2;
             break;
         }
 
-        case 0x4000: { // 3xkk - SE Vx, kk
+        case 0x4000: {
             uint8_t x = (opcode & 0x0F00) >> 8;
-            uint8_t byte = (opcode & 0x00FF);
-            if (chip8.V[x] != byte) {
-                chip8.pc += 2;
-            } 
+            if (chip8.V[x] != (opcode & 0x00FF)) next_pc += 2;
             break;
         }
 
-        case 0x5000: { // 5xy0 - SE Vx, Vy
+        case 0x5000: {
             uint8_t x = (opcode & 0x0F00) >> 8;
             uint8_t y = (opcode & 0x00F0) >> 4;
-            if (chip8.V[x] == chip8.V[y]) {
-                chip8.pc += 2;
-            }
+            if (chip8.V[x] == chip8.V[y]) next_pc += 2;
             break;
         }
 
-        case 0x6000: { // 6xkk - LD Vx, kk
+        case 0x6000: {
             uint8_t x = (opcode & 0x0F00) >> 8;
             chip8.V[x] = opcode & 0x00FF;
             break;
         }
 
-        case 0x7000: { // 7xkk - ADD Vx, kk
+        case 0x7000: {
             uint8_t x = (opcode & 0x0F00) >> 8;
-            chip8.V[x] += opcode & 0x0FFF;
+            chip8.V[x] += opcode & 0x00FF;
             break;
         }
 
         case 0x8000: {
-            switch (opcode & 0xF00F)
-            {
-            case 0x8000:
-                break;
-            
-            default:
-                break;
+            uint8_t x = (opcode & 0x0F00) >> 8;
+            uint8_t y = (opcode & 0x00F0) >> 4;
+            switch (opcode & 0x000F) {
+                case 0x0: chip8.V[x] = chip8.V[y]; break;
+                case 0x1: chip8.V[x] |= chip8.V[y]; break;
+                case 0x2: chip8.V[x] &= chip8.V[y]; break;
+                case 0x3: chip8.V[x] ^= chip8.V[y]; break;
+                case 0x4: {
+                    uint16_t sum = chip8.V[x] + chip8.V[y];
+                    chip8.V[0xF] = sum > 0xFF;
+                    chip8.V[x] = sum & 0xFF;
+                    break;
+                }
+                case 0x5:
+                    chip8.V[0xF] = chip8.V[x] >= chip8.V[y];
+                    chip8.V[x] -= chip8.V[y];
+                    break;
+                case 0x6:
+                    chip8.V[x] = chip8.V[y];
+                    chip8.V[0xF] = chip8.V[x] & 0x1;
+                    chip8.V[x] >>= 1;
+                    break;
+                case 0x7:
+                    chip8.V[0xF] = chip8.V[y] > chip8.V[x];
+                    chip8.V[x] = chip8.V[y] - chip8.V[x];
+                    break;
+                case 0xE:
+                    chip8.V[x] = chip8.V[y];
+                    chip8.V[0xF] = (chip8.V[x] & 0x80) >> 7;
+                    chip8.V[x] <<= 1;
+                    break;
             }
-        }
-
-        case 0xA000: { // ANNN - LD i, addr
-            chip8.I = opcode & 0x0FFF;
             break;
         }
 
-        case 0xD000: { //Dxyn - DRW Vx, Vy, nibble
+        case 0x9000: {
+            uint8_t x = (opcode & 0x0F00) >> 8;
+            uint8_t y = (opcode & 0x00F0) >> 4;
+            if (chip8.V[x] != chip8.V[y]) next_pc += 2;
+            break;
+        }
+
+        case 0xA000:
+            chip8.I = opcode & 0x0FFF;
+            break;
+
+        case 0xD000: {
             uint8_t x = chip8.V[(opcode & 0x0F00) >> 8];
             uint8_t y = chip8.V[(opcode & 0x00F0) >> 4];
             uint8_t height = opcode & 0x000F;
-
             chip8.V[0xF] = 0;
 
-            for(int row = 0; row < height; row++) {
-                uint8_t sprite_byte = chip8.memory[chip8.I + row];
-                for(int col = 0; col < 8; col++) {
-                    uint8_t sprite_pixel = (sprite_byte >> (7 - col)) & 1;
+            for (int row = 0; row < height; row++) {
+                uint8_t sprite = chip8.memory[chip8.I + row];
+                for (int col = 0; col < 8; col++) {
+                    uint8_t pixel = (sprite >> (7 - col)) & 1;
                     uint8_t* screen_pixel = &display[(y + row) % DISPLAY_HEIGHT][(x + col) % DISPLAY_WIDTH];
-
-                    if (sprite_pixel) {
-                        if (*screen_pixel == 1) {
-                            chip8.V[0xF] = 1;
-                        }
-                        *screen_pixel ^= 1;
-                    }
+                    if (pixel && *screen_pixel) chip8.V[0xF] = 1;
+                    *screen_pixel ^= pixel;
                 }
             }
-            
+
             display_render();
+            break;
+        }
+
+        case 0xF000: {
+            uint8_t x = (opcode & 0x0F00) >> 8;
+            switch (opcode & 0x00FF) {
+                case 0x1E: chip8.I += chip8.V[x]; break;
+                case 0x33:
+                    chip8.memory[chip8.I] = chip8.V[x] / 100;
+                    chip8.memory[chip8.I + 1] = (chip8.V[x] / 10) % 10;
+                    chip8.memory[chip8.I + 2] = chip8.V[x] % 10;
+                    break;
+                case 0x55:
+                    for (int i = 0; i <= x; i++) chip8.memory[chip8.I++] = chip8.V[i];
+                    break;
+                case 0x65:
+                    for (int i = 0; i <= x; i++) chip8.V[i] = chip8.memory[chip8.I++];
+                    break;
+                default:
+                    printf("Unknown Fx opcode: 0x%04X\n", opcode);
+                    break;
+            }
             break;
         }
 
@@ -181,6 +214,9 @@ void cpu_cycle(void) {
             printf("Unknown opcode: 0x%04X\n", opcode);
             break;
     }
+
+    // Update PC
+    chip8.pc = next_pc;
 
     // Update Timers
     if (chip8.delay_timer > 0) chip8.delay_timer--;
