@@ -26,7 +26,7 @@
     - [x] Annn - LD I, addr
     - [ ] Bnnn - JP V0, addr
     - [ ] Cxkk - RND Vx, byte
-    - [x] Dxyn - DRW Vx, Vy, nibble - Quirk7[] Quirk8[] Quirk9[] Quirk10[]
+    - [x] Dxyn - DRW Vx, Vy, nibble - Quirk7[ ] Quirk8[ ] Quirk9[ ] Quirk10[ ]
     - [ ] Ex9E - SKP Vx
     - [ ] ExA1 - SKNP Vx
     - [ ] Fx07 - LD Vx, DT
@@ -36,8 +36,8 @@
     - [X] Fx1E - ADD I, Vx
     - [ ] Fx29 - LD F, Vx
     - [X] Fx33 - LD B, Vx
-    - [X] Fx55 - LD I, Vx - Quirk12[]
-    - [X] Fx65 - LD Vx, I - Quirk12[]
+    - [X] Fx55 - LD I, Vx - Quirk12[ ]
+    - [X] Fx65 - LD Vx, I - Quirk12[ ]
 - [ ] Add keypad input support
 - [ ] Add sound support
 - [ ] Write tests for CPU instructions
