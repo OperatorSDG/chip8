@@ -1,3 +1,7 @@
+# Emulating: CHIP-8 - The classic CHIP-8 for the COSMAC VIP by Joseph Weisbecker, 1977
+[Timendus/chip8-test-suite](https://github.com/Timendus/chip8-test-suite)
+[Chip8 Opcode List - Gulark Schumann](https://chip8.gulrak.net/#quirk5)
+
 ## To-Do
 
 - [x] Load and display ROMs
