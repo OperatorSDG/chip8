@@ -124,34 +124,36 @@ void cpu_cycle(void) {
         case 0x8000: {
             uint8_t x = (opcode & 0x0F00) >> 8;
             uint8_t y = (opcode & 0x00F0) >> 4;
+            uint8_t vx = chip8.V[x];
+            uint8_t vy = chip8.V[y];
             switch (opcode & 0x000F) {
                 case 0x0: chip8.V[x] = chip8.V[y]; break;
                 case 0x1: chip8.V[x] |= chip8.V[y]; break;
                 case 0x2: chip8.V[x] &= chip8.V[y]; break;
                 case 0x3: chip8.V[x] ^= chip8.V[y]; break;
                 case 0x4: {
-                    uint16_t sum = chip8.V[x] + chip8.V[y];
-                    chip8.V[0xF] = sum > 0xFF;
+                    uint16_t sum = vx + vy;
                     chip8.V[x] = sum & 0xFF;
+                    chip8.V[0xF] = sum > 0xFF;
                     break;
                 }
                 case 0x5:
-                    chip8.V[0xF] = chip8.V[x] >= chip8.V[y];
                     chip8.V[x] -= chip8.V[y];
+                    chip8.V[0xF] = vx >= vy;
                     break;
                 case 0x6:
                     chip8.V[x] = chip8.V[y];
-                    chip8.V[0xF] = chip8.V[x] & 0x1;
                     chip8.V[x] >>= 1;
+                    chip8.V[0xF] = vy & 0x1;
                     break;
                 case 0x7:
-                    chip8.V[0xF] = chip8.V[y] > chip8.V[x];
                     chip8.V[x] = chip8.V[y] - chip8.V[x];
+                    chip8.V[0xF] = vy >= vx;
                     break;
                 case 0xE:
                     chip8.V[x] = chip8.V[y];
-                    chip8.V[0xF] = (chip8.V[x] & 0x80) >> 7;
                     chip8.V[x] <<= 1;
+                    chip8.V[0xF] = (vy & 0x80) >> 7;
                     break;
             }
             break;

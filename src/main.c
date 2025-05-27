@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <SDL2/SDL.h>
 
-#define CYCLE_COUNT 320
+#define CYCLE_COUNT 950
 
 int main(int argc, char* argv[]) {
     if (argc != 2) {
