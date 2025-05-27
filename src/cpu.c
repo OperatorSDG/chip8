@@ -215,9 +215,41 @@ void cpu_cycle(void) {
             break;
         }
 
+        case 0xE000: { // Ex**
+            uint8_t x = (opcode & 0x0F00) >> 8;
+            switch (opcode & 0x00FF) {
+                case 0x9E: { // Ex9E - SKP Vx
+                    if (chip8.keypad[chip8.V[x]]) {
+                        next_pc += 2;
+                    }
+                    break;
+                }
+                case 0xA1: { // ExA1 - SKNP Vx
+                    if (!chip8.keypad[chip8.V[x]]) {
+                        next_pc += 2;
+                    }
+                    break;
+                }
+                default:
+                    printf("Unknown Ex opcode: 0x%04X\n", opcode);
+                    break;
+            }
+        }
+
         case 0xF000: { // Fx** 
             uint8_t x = (opcode & 0x0F00) >> 8;
             switch (opcode & 0x00FF) {
+                case 0x0A: { // Fx0A - LD Vx, Key
+                    bool key_pressed = false;
+                    for (int i = 0; i < 16; i++) {
+                        chip8.V[x] = i;
+                        key_pressed = true;
+                        break; 
+                    }
+                    if (!key_pressed) {
+                        next_pc = chip8.pc;
+                    }
+                }
                 case 0x1E: { // Fx1E - ADD I, Vx
                     chip8.I += chip8.V[x]; 
                     break;

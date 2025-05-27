@@ -40,10 +40,10 @@
         - [ ] Quirk8 
         - [ ] Quirk9 
         - [ ] Quirk10
-    - [ ] Ex9E - SKP Vx
-    - [ ] ExA1 - SKNP Vx
+    - [x] Ex9E - SKP Vx
+    - [x] ExA1 - SKNP Vx
     - [ ] Fx07 - LD Vx, DT
-    - [ ] Fx0A - LD Vx, K
+    - [x] Fx0A - LD Vx, K
     - [X] Fx15 - LD DT, Vx
     - [ ] Fx18 - LD ST, Vx
     - [X] Fx1E - ADD I, Vx

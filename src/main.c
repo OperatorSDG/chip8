@@ -1,4 +1,5 @@
 #include "../include/display.h"
+#include "../include/input.h"
 #include "../include/cpu.h"
 #include <stdio.h>
 #include <SDL2/SDL.h>
@@ -28,9 +29,10 @@ int main(int argc, char* argv[]) {
             if (event.type == SDL_QUIT) {
                 running = false;
             }
+            input_handle_event(&event);
         }
         
-        // 
+        // Simulate CPU Cycles
         for (int cycle_no = 0; cycle_no < CYCLE_PER_FRAME; cycle_no++) {
             cpu_cycle();
         }
@@ -46,8 +48,7 @@ int main(int argc, char* argv[]) {
             }
             tick_time = SDL_GetTicks();
         }
-
-        // 
+        SDL_Delay(1);
     }
 
     display_destroy();
