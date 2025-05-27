@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <SDL2/SDL.h>
 
-#define CYCLE_COUNT 950
+#define CYCLE_PER_FRAME 10
 
 int main(int argc, char* argv[]) {
     if (argc != 2) {
@@ -17,32 +17,37 @@ int main(int argc, char* argv[]) {
     }
     cpu_init();
     cpu_load_rom(argv[1]);
-    printf("0x200: 0x%02X%02X\n", chip8.memory[0x200], chip8.memory[0x201]); // Should print 0x12 08
-
-
-    // Cycle through Test ROM
-    for (int i = 0; i < CYCLE_COUNT; i++){
-        cpu_cycle();
-        printf("Cycle %d: PC = 0x%03X : Code = 0x%02X%02X\n", i+1, chip8.pc - 2, chip8.memory[chip8.pc - 2],chip8.memory[chip8.pc - 1]);
-        
-        // Print Registers
-        for (int r = 0; r < 16; r++) {
-            printf("%d ", chip8.V[r]);
-            if ((r + 1) % 8 == 0) printf("\n");  // 8 per line
-        }
-
-        printf("\n");
-    }
-
-    SDL_Event event;
     bool running = true;
+
+    // CPU Cycling
+    uint32_t tick_time = SDL_GetTicks();
     while (running) {
+        // Event Handler
+        SDL_Event event;
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
                 running = false;
             }
         }
-        SDL_Delay(100);
+        
+        // 
+        for (int cycle_no = 0; cycle_no < CYCLE_PER_FRAME; cycle_no++) {
+            cpu_cycle();
+        }
+
+        // Timer Updates
+        if (SDL_GetTicks() - tick_time >= 16) { // 60hz ~= 16ms
+            if (chip8.delay_timer > 0) {
+                chip8.delay_timer--;
+            }
+            if (chip8.sound_timer > 0) {
+                printf("Beep!\n");
+                chip8.sound_timer--;
+            }
+            tick_time = SDL_GetTicks();
+        }
+
+        // 
     }
 
     display_destroy();

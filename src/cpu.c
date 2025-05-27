@@ -72,105 +72,130 @@ void cpu_cycle(void) {
 
     // Instruction Decode and Execute
     switch (opcode & 0xF000) {
-        case 0x0000: {
+        case 0x0000: { // 00**
             switch (opcode) {
-                case 0x00E0: display_clear(); break;
-                case 0x00EE:
+                case 0x00E0: { // CLS
+                    display_clear(); 
+                    break;
+                }
+                case 0x00EE: { // RET
                     chip8.sp--;
                     next_pc = chip8.stack[chip8.sp];
                     break;
+                }
             }
             break;
         }
 
-        case 0x1000: next_pc = opcode & 0x0FFF; break;
+        case 0x1000: { // 1nnn - JP addr
+            next_pc = opcode & 0x0FFF; 
+            break;
+        }
 
-        case 0x2000:
+        case 0x2000: { // 2nnn - CALL addr
             chip8.stack[chip8.sp++] = chip8.pc + 2;
             next_pc = opcode & 0x0FFF;
             break;
+        }
 
-        case 0x3000: {
+        case 0x3000: { // 3xkk - SE Vx, byte(kk)
             uint8_t x = (opcode & 0x0F00) >> 8;
             if (chip8.V[x] == (opcode & 0x00FF)) next_pc += 2;
             break;
         }
 
-        case 0x4000: {
+        case 0x4000: { // 4xkk - SNE Vx, byte(kk)
             uint8_t x = (opcode & 0x0F00) >> 8;
             if (chip8.V[x] != (opcode & 0x00FF)) next_pc += 2;
             break;
         }
 
-        case 0x5000: {
+        case 0x5000: { // 5xy0 - SE Vx, Vy
             uint8_t x = (opcode & 0x0F00) >> 8;
             uint8_t y = (opcode & 0x00F0) >> 4;
             if (chip8.V[x] == chip8.V[y]) next_pc += 2;
             break;
         }
 
-        case 0x6000: {
+        case 0x6000: { // 6xkk - LD Vx, byte(kk)
             uint8_t x = (opcode & 0x0F00) >> 8;
             chip8.V[x] = opcode & 0x00FF;
             break;
         }
 
-        case 0x7000: {
+        case 0x7000: { // 7xkk - ADD Vx, byte(kk)
             uint8_t x = (opcode & 0x0F00) >> 8;
             chip8.V[x] += opcode & 0x00FF;
             break;
         }
 
-        case 0x8000: {
+        case 0x8000: { // 8xy* 
             uint8_t x = (opcode & 0x0F00) >> 8;
             uint8_t y = (opcode & 0x00F0) >> 4;
             uint8_t vx = chip8.V[x];
             uint8_t vy = chip8.V[y];
             switch (opcode & 0x000F) {
-                case 0x0: chip8.V[x] = chip8.V[y]; break;
-                case 0x1: chip8.V[x] |= chip8.V[y]; break;
-                case 0x2: chip8.V[x] &= chip8.V[y]; break;
-                case 0x3: chip8.V[x] ^= chip8.V[y]; break;
-                case 0x4: {
+                case 0x0: { // 8xy0 - LD Vx, Vy
+                    chip8.V[x] = chip8.V[y]; 
+                    break;
+                }
+                case 0x1: { // 8xy1 - OR Vx, Vy
+                    chip8.V[x] |= chip8.V[y]; 
+                    break;
+                }
+                case 0x2: { // 8xy2 - AND Vx, Vy
+                    chip8.V[x] &= chip8.V[y]; 
+                    break;
+                }
+                case 0x3: { // 8xy3 - XOR Vx, Vy
+                    chip8.V[x] ^= chip8.V[y]; 
+                    break;
+                }
+                case 0x4: { // 8xy4 - ADD Vx, Vy
                     uint16_t sum = vx + vy;
                     chip8.V[x] = sum & 0xFF;
                     chip8.V[0xF] = sum > 0xFF;
                     break;
                 }
-                case 0x5:
+                case 0x5: { // 8xy5 - SUB Vx, Vy
                     chip8.V[x] -= chip8.V[y];
                     chip8.V[0xF] = vx >= vy;
                     break;
-                case 0x6:
+                }
+                case 0x6: { // 8xy6 - SHR Vx{, Vy}
                     chip8.V[x] = chip8.V[y];
                     chip8.V[x] >>= 1;
                     chip8.V[0xF] = vy & 0x1;
                     break;
-                case 0x7:
+                }
+                case 0x7: { // 8xy7 - SUBN Vx, Vy
                     chip8.V[x] = chip8.V[y] - chip8.V[x];
                     chip8.V[0xF] = vy >= vx;
                     break;
-                case 0xE:
+                }
+                case 0xE: { // 8xyE - SHL Vx{, Vy}
                     chip8.V[x] = chip8.V[y];
                     chip8.V[x] <<= 1;
                     chip8.V[0xF] = (vy & 0x80) >> 7;
                     break;
+                }
             }
             break;
         }
 
-        case 0x9000: {
+        case 0x9000: { // 9xy0 - SNE Vx, Vy
             uint8_t x = (opcode & 0x0F00) >> 8;
             uint8_t y = (opcode & 0x00F0) >> 4;
             if (chip8.V[x] != chip8.V[y]) next_pc += 2;
             break;
         }
 
-        case 0xA000:
+        case 0xA000: { // Annn - LD I, addr
             chip8.I = opcode & 0x0FFF;
             break;
+        }
 
-        case 0xD000: {
+        case 0xD000: { // Dxyn - DRW Vx, Vy, nibble(n)
             uint8_t x = chip8.V[(opcode & 0x0F00) >> 8];
             uint8_t y = chip8.V[(opcode & 0x00F0) >> 4];
             uint8_t height = opcode & 0x000F;
@@ -190,21 +215,31 @@ void cpu_cycle(void) {
             break;
         }
 
-        case 0xF000: {
+        case 0xF000: { // Fx** 
             uint8_t x = (opcode & 0x0F00) >> 8;
             switch (opcode & 0x00FF) {
-                case 0x1E: chip8.I += chip8.V[x]; break;
-                case 0x33:
+                case 0x1E: { // Fx1E - ADD I, Vx
+                    chip8.I += chip8.V[x]; 
+                    break;
+                }
+                case 0x33: { // Fx33 - LD B, Vx
                     chip8.memory[chip8.I] = chip8.V[x] / 100;
                     chip8.memory[chip8.I + 1] = (chip8.V[x] / 10) % 10;
                     chip8.memory[chip8.I + 2] = chip8.V[x] % 10;
                     break;
-                case 0x55:
-                    for (int i = 0; i <= x; i++) chip8.memory[chip8.I++] = chip8.V[i];
+                }
+                case 0x55: { // Fx55 - LD [I], Vx
+                    for (int i = 0; i <= x; i++) {
+                        chip8.memory[chip8.I++] = chip8.V[i]; // Legacy code : I increments to [I + x + 1]
+                    }
                     break;
-                case 0x65:
-                    for (int i = 0; i <= x; i++) chip8.V[i] = chip8.memory[chip8.I++];
+                }
+                case 0x65: { // Fx65 - LD Vx, [I]
+                    for (int i = 0; i <= x; i++) {
+                        chip8.V[i] = chip8.memory[chip8.I++]; // Legacy code : I increments to [I + x + 1]
+                    }
                     break;
+                }
                 default:
                     printf("Unknown Fx opcode: 0x%04X\n", opcode);
                     break;
@@ -219,8 +254,4 @@ void cpu_cycle(void) {
 
     // Update PC
     chip8.pc = next_pc;
-
-    // Update Timers
-    if (chip8.delay_timer > 0) chip8.delay_timer--;
-    if (chip8.sound_timer > 0) chip8.sound_timer--;
 }
