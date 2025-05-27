@@ -14,19 +14,28 @@
     - [x] 6xkk - LD Vx, byte
     - [x] 7xkk - ADD Vx, byte
     - [x] 8xy0 - LD Vx, Vy
-    - [x] 8xy1 - OR Vx, Vy - Quirk5[]
-    - [x] 8xy2 - AND Vx, Vy - Quirk5[]
-    - [x] 8xy3 - XOR Vx, Vy - Quirk5[]
+    - [x] 8xy1 - OR Vx, Vy 
+        - Quirk5[ ]
+    - [x] 8xy2 - AND Vx, Vy 
+        - Quirk5[ ]
+    - [x] 8xy3 - XOR Vx, Vy 
+        - Quirk5[ ]
     - [x] 8xy4 - ADD Vx, Vy
     - [x] 8xy5 - SUB Vx, Vy
-    - [x] 8xy6 - SHR Vx {, Vy} - Quirk6[]
+    - [x] 8xy6 - SHR Vx {, Vy} 
+        - Quirk6[ ]
     - [x] 8xy7 - SUBN Vx, Vy
-    - [x] 8xyE - SHL Vx {, Vy} - Quirk6[]
+    - [x] 8xyE - SHL Vx {, Vy} 
+        - Quirk6[ ]
     - [X] 9xy0 - SNE Vx, Vy
     - [x] Annn - LD I, addr
     - [ ] Bnnn - JP V0, addr
     - [ ] Cxkk - RND Vx, byte
-    - [x] Dxyn - DRW Vx, Vy, nibble - Quirk7[ ] Quirk8[ ] Quirk9[ ] Quirk10[ ]
+    - [x] Dxyn - DRW Vx, Vy, nibble 
+        - Quirk7[ ] 
+        - Quirk8[ ] 
+        - Quirk9[ ] 
+        - Quirk10[ ]
     - [ ] Ex9E - SKP Vx
     - [ ] ExA1 - SKNP Vx
     - [ ] Fx07 - LD Vx, DT
