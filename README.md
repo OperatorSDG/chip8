@@ -19,22 +19,22 @@
     - [x] 7xkk - ADD Vx, byte
     - [x] 8xy0 - LD Vx, Vy
     - [x] 8xy1 - OR Vx, Vy 
-        - [ ] Quirk5
+        - [X] Quirk5
     - [x] 8xy2 - AND Vx, Vy 
-        - [ ] Quirk5
+        - [X] Quirk5
     - [x] 8xy3 - XOR Vx, Vy 
-        - [ ] Quirk5
+        - [X] Quirk5
     - [x] 8xy4 - ADD Vx, Vy
     - [x] 8xy5 - SUB Vx, Vy
     - [x] 8xy6 - SHR Vx {, Vy} 
-        - [ ] Quirk6
+        - [X] Quirk6
     - [x] 8xy7 - SUBN Vx, Vy
     - [x] 8xyE - SHL Vx {, Vy} 
-        - [ ] Quirk6
+        - [X] Quirk6
     - [X] 9xy0 - SNE Vx, Vy
     - [x] Annn - LD I, addr
-    - [ ] Bnnn - JP V0, addr
-    - [ ] Cxkk - RND Vx, byte
+    - [X] Bnnn - JP V0, addr
+    - [X] Cxkk - RND Vx, byte
     - [x] Dxyn - DRW Vx, Vy, nibble 
         - [ ] Quirk7
         - [ ] Quirk8 
@@ -42,15 +42,17 @@
         - [ ] Quirk10
     - [x] Ex9E - SKP Vx
     - [x] ExA1 - SKNP Vx
-    - [ ] Fx07 - LD Vx, DT
+    - [X] Fx07 - LD Vx, DT
     - [x] Fx0A - LD Vx, K
     - [X] Fx15 - LD DT, Vx
     - [ ] Fx18 - LD ST, Vx
     - [X] Fx1E - ADD I, Vx
-    - [ ] Fx29 - LD F, Vx
+    - [X] Fx29 - LD F, Vx
     - [X] Fx33 - LD B, Vx
-    - [X] Fx55 - LD I, Vx - Quirk12[ ]
-    - [X] Fx65 - LD Vx, I - Quirk12[ ]
+    - [X] Fx55 - LD I, Vx 
+        - [x]Quirk12
+    - [X] Fx65 - LD Vx, I 
+        - [X]Quirk12
 - [ ] Add keypad input support
 - [ ] Add sound support
 - [ ] Write tests for CPU instructions

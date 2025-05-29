@@ -140,15 +140,18 @@ void cpu_cycle(void) {
                     break;
                 }
                 case 0x1: { // 8xy1 - OR Vx, Vy
-                    chip8.V[x] |= chip8.V[y]; 
+                    chip8.V[x] |= chip8.V[y];
+                    chip8.V[0xF] = 0; 
                     break;
                 }
                 case 0x2: { // 8xy2 - AND Vx, Vy
                     chip8.V[x] &= chip8.V[y]; 
+                    chip8.V[0xF] = 0;
                     break;
                 }
                 case 0x3: { // 8xy3 - XOR Vx, Vy
-                    chip8.V[x] ^= chip8.V[y]; 
+                    chip8.V[x] ^= chip8.V[y];
+                    chip8.V[0xF] = 0; 
                     break;
                 }
                 case 0x4: { // 8xy4 - ADD Vx, Vy
@@ -195,6 +198,18 @@ void cpu_cycle(void) {
             break;
         }
 
+        case 0xB000: { // Bnnn - JP V0, addr
+            next_pc = chip8.V[0] + (opcode & 0x0FFF);
+            break;
+        }
+
+        case 0xC000: { // Cxkk - RND Vx, byte(kk)
+            uint8_t x = (opcode & 0x0F00) >> 8;
+            uint8_t kk = opcode & 0x00FF;
+            chip8.V[x] = (rand() % 256) & kk;
+            break; 
+        }
+
         case 0xD000: { // Dxyn - DRW Vx, Vy, nibble(n)
             uint8_t x = chip8.V[(opcode & 0x0F00) >> 8];
             uint8_t y = chip8.V[(opcode & 0x00F0) >> 4];
@@ -202,16 +217,16 @@ void cpu_cycle(void) {
             chip8.V[0xF] = 0;
 
             for (int row = 0; row < height; row++) {
+                if ((y + row) >= DISPLAY_HEIGHT) break;
                 uint8_t sprite = chip8.memory[chip8.I + row];
                 for (int col = 0; col < 8; col++) {
+                    if ((y + row) >= DISPLAY_HEIGHT) continue;
                     uint8_t pixel = (sprite >> (7 - col)) & 1;
-                    uint8_t* screen_pixel = &display[(y + row) % DISPLAY_HEIGHT][(x + col) % DISPLAY_WIDTH];
+                    uint8_t* screen_pixel = &display[y + row][x + col];
                     if (pixel && *screen_pixel) chip8.V[0xF] = 1;
                     *screen_pixel ^= pixel;
                 }
             }
-
-            display_render();
             break;
         }
 
@@ -234,24 +249,57 @@ void cpu_cycle(void) {
                     printf("Unknown Ex opcode: 0x%04X\n", opcode);
                     break;
             }
+            break;
         }
 
         case 0xF000: { // Fx** 
             uint8_t x = (opcode & 0x0F00) >> 8;
             switch (opcode & 0x00FF) {
+                case 0x07: { // Fx07 - LD Vx, DT
+                    chip8.V[x] = chip8.delay_timer;
+                    break;
+                }
                 case 0x0A: { // Fx0A - LD Vx, Key
-                    bool key_pressed = false;
-                    for (int i = 0; i < 16; i++) {
-                        chip8.V[x] = i;
-                        key_pressed = true;
-                        break; 
-                    }
-                    if (!key_pressed) {
+                    static int waiting = 0;
+                    static int key_down = -1;
+
+                    if(!waiting) {
+                        waiting = 1;
+                        key_down = -1;
                         next_pc = chip8.pc;
+                        break;
                     }
+
+                    if (key_down == -1) {
+                        for (int i = 0; i < 16; i++) {
+                            if (chip8.keypad[i]) {
+                                key_down = i;
+                                break;
+                            }
+                        }
+                        next_pc = chip8.pc;
+                        break;
+                    } else {
+                        if (!chip8.keypad[key_down]) {
+                            chip8.V[x] = key_down;
+                            waiting = 0;
+                            key_down = -1;
+                        } else {
+                            next_pc = chip8.pc;
+                        }
+                        break;
+                    }
+                }
+                case 0x15: { // Fx15 - LD DT, Vx
+                    chip8.delay_timer = chip8.V[x];
+                    break;
                 }
                 case 0x1E: { // Fx1E - ADD I, Vx
                     chip8.I += chip8.V[x]; 
+                    break;
+                }
+                case 0x29: { // Fx29 - LD LF, Vx
+                    chip8.I = 0x50 + (chip8.V[x] & 0x0F) * 5;
                     break;
                 }
                 case 0x33: { // Fx33 - LD B, Vx
@@ -283,7 +331,8 @@ void cpu_cycle(void) {
             printf("Unknown opcode: 0x%04X\n", opcode);
             break;
     }
-
+    //
+    display_render();
     // Update PC
     chip8.pc = next_pc;
 }

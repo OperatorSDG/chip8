@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <SDL2/SDL.h>
 
-#define CYCLE_PER_FRAME 10
+#define CYCLE_PER_FRAME 8
 
 int main(int argc, char* argv[]) {
     if (argc != 2) {
