@@ -20,7 +20,7 @@ typedef struct{
     uint16_t pc;                        // Program Counter
     uint8_t delay_timer;                //
     uint8_t sound_timer;                //
-    uint16_t stack[STACK_SIZE];          // Stack for subroutine calls
+    uint16_t stack[STACK_SIZE];         // Stack for subroutine calls
     uint8_t sp;
     uint8_t keypad[KEYPAD_SIZE];
 } Chip8;

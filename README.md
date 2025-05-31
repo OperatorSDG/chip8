@@ -6,10 +6,10 @@
 
 - [x] Load and display ROMs
 - [x] Implement 00E0 (clear screen)
-- [ ] Implement full opcode set
+- [x] Implement full opcode set
     - [x] 00E0 - CLS
     - [x] 00EE - RET
-    - [ ] 0nnn - SYS addr
+    - [-] 0nnn - SYS addr
     - [x] 1nnn - JP addr
     - [x] 2nnn - CALL addr
     - [x] 3xkk - SE Vx, byte
@@ -36,16 +36,14 @@
     - [X] Bnnn - JP V0, addr
     - [X] Cxkk - RND Vx, byte
     - [x] Dxyn - DRW Vx, Vy, nibble 
-        - [ ] Quirk7
-        - [ ] Quirk8 
-        - [ ] Quirk9 
-        - [ ] Quirk10
+        - [x] Quirk8 
+        - [x] Quirk9 
     - [x] Ex9E - SKP Vx
     - [x] ExA1 - SKNP Vx
     - [X] Fx07 - LD Vx, DT
     - [x] Fx0A - LD Vx, K
     - [X] Fx15 - LD DT, Vx
-    - [ ] Fx18 - LD ST, Vx
+    - [X] Fx18 - LD ST, Vx
     - [X] Fx1E - ADD I, Vx
     - [X] Fx29 - LD F, Vx
     - [X] Fx33 - LD B, Vx
@@ -53,7 +51,7 @@
         - [x]Quirk12
     - [X] Fx65 - LD Vx, I 
         - [X]Quirk12
-- [ ] Add keypad input support
-- [ ] Add sound support
+- [X] Add keypad input support
+- [X] Add sound support
 - [ ] Write tests for CPU instructions
 - [X] Add cycle timing for real-time emulation

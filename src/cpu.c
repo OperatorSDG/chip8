@@ -83,6 +83,9 @@ void cpu_cycle(void) {
                     next_pc = chip8.stack[chip8.sp];
                     break;
                 }
+                default:
+                    printf("Unknown 0x opcode: 0x%04X\n", opcode);
+                    break;
             }
             break;
         }
@@ -182,6 +185,9 @@ void cpu_cycle(void) {
                     chip8.V[0xF] = (vy & 0x80) >> 7;
                     break;
                 }
+                default:
+                    printf("Unknown 8x opcode: 0x%04X\n", opcode);
+                    break;
             }
             break;
         }
@@ -211,16 +217,16 @@ void cpu_cycle(void) {
         }
 
         case 0xD000: { // Dxyn - DRW Vx, Vy, nibble(n)
-            uint8_t x = chip8.V[(opcode & 0x0F00) >> 8];
-            uint8_t y = chip8.V[(opcode & 0x00F0) >> 4];
+            uint8_t x = chip8.V[(opcode & 0x0F00) >> 8] % DISPLAY_WIDTH;
+            uint8_t y = chip8.V[(opcode & 0x00F0) >> 4] % DISPLAY_HEIGHT;
             uint8_t height = opcode & 0x000F;
             chip8.V[0xF] = 0;
 
             for (int row = 0; row < height; row++) {
-                if ((y + row) >= DISPLAY_HEIGHT) break;
+                if (y + row >= DISPLAY_HEIGHT) break; // clip at bottom
                 uint8_t sprite = chip8.memory[chip8.I + row];
                 for (int col = 0; col < 8; col++) {
-                    if ((y + row) >= DISPLAY_HEIGHT) continue;
+                    if (x + col >= DISPLAY_WIDTH) continue; // clip at right
                     uint8_t pixel = (sprite >> (7 - col)) & 1;
                     uint8_t* screen_pixel = &display[y + row][x + col];
                     if (pixel && *screen_pixel) chip8.V[0xF] = 1;
@@ -294,6 +300,10 @@ void cpu_cycle(void) {
                     chip8.delay_timer = chip8.V[x];
                     break;
                 }
+                case 0x18: { // Fx18 - LD ST, Vx
+                    chip8.sound_timer = chip8.V[x];
+                    break;
+                }
                 case 0x1E: { // Fx1E - ADD I, Vx
                     chip8.I += chip8.V[x]; 
                     break;
@@ -331,8 +341,8 @@ void cpu_cycle(void) {
             printf("Unknown opcode: 0x%04X\n", opcode);
             break;
     }
-    //
+
+    // Update PC & Display
     display_render();
-    // Update PC
     chip8.pc = next_pc;
 }

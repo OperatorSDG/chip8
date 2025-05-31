@@ -1,6 +1,8 @@
 #include "../include/display.h"
 #include "../include/input.h"
 #include "../include/cpu.h"
+#include "../include/audio.h"
+
 #include <stdio.h>
 #include <SDL2/SDL.h>
 
@@ -13,7 +15,10 @@ int main(int argc, char* argv[]) {
     }
 
     // Initialize Systems
-    if(!display_init()) {
+    if (!display_init()) {
+        return 1;
+    }
+    if (!audio_init()) {
         return 1;
     }
     cpu_init();
@@ -43,8 +48,13 @@ int main(int argc, char* argv[]) {
                 chip8.delay_timer--;
             }
             if (chip8.sound_timer > 0) {
-                printf("Beep!\n");
+                audio_beep_on();
                 chip8.sound_timer--;
+                if (chip8.sound_timer == 0) {
+                    audio_beep_off();
+                }
+            } else {
+                audio_beep_off();
             }
             tick_time = SDL_GetTicks();
         }
